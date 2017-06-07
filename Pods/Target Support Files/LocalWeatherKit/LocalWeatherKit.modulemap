@@ -1,0 +1,6 @@
+framework module LocalWeatherKit {
+  umbrella header "LocalWeatherKit-umbrella.h"
+
+  export *
+  module * { export * }
+}
