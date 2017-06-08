@@ -14,12 +14,8 @@ Sample iOS app that displays location based weather. Leverages [LocalWeatherKit]
 4. That's it. Build, run app and enjoy the local weather. Well, the weather app at least.
 
 ## App Screenshots
-![](./Screenshots/Loading.png)
+![Loading](./Screenshots/Loading.png)
 
-![](./Screenshots/Refresh.png)
+![Refresh](./Screenshots/Refresh.png) ![List](./Screenshots/List.png)
 
-![](./Screenshots/List.png)
-
-![](./Screenshots/Map.png)
-
-![](./Screenshots/Details.png)
+![Map](./Screenshots/Map.png) ![City Weather Details](./Screenshots/Details.png)
