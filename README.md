@@ -1,7 +1,7 @@
 Local Weather
 ===========
 
-Objective-C app that leverages [LocalWeatherKit](https://github.com/AnthonyArzola/LocalWeatherKit "LocalWeatherKit on GitHub") CocoaPod to display weather based on your location. Additionally, it makes use of [Local Weather images](https://github.com/AnthonyArzola/LocalWeatherImages "Local Weather Images on GitHub").
+Sample iOS app that displays location based weather. Leverages [LocalWeatherKit](https://github.com/AnthonyArzola/LocalWeatherKit "LocalWeatherKit on GitHub") CocoaPod. Additionally, makes use of [Local Weather images](https://github.com/AnthonyArzola/LocalWeatherImages "Local Weather Images on GitHub").
 
 ## Getting Started
 
@@ -12,3 +12,14 @@ Objective-C app that leverages [LocalWeatherKit](https://github.com/AnthonyArzol
 3. Open LWConstants.h and set KEY_ID value from step 1.
 
 4. That's it. Build, run app and enjoy the local weather. Well, the weather app at least.
+
+## App Screenshots
+![](./Screenshots/Loading.png)
+
+![](./Screenshots/Refresh.png)
+
+![](./Screenshots/List.png)
+
+![](./Screenshots/Map.png)
+
+![](./Screenshots/Details.png)
