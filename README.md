@@ -7,15 +7,19 @@ Sample iOS app that displays location based weather. Leverages [LocalWeatherKit]
 
 1. Get OpenWeatherMap API key (https://openweathermap.org/appid)
 
-2. Clone repo
+2. Clone this repo
 
-3. Open LWConstants.h and set KEY_ID value from step 1.
+3. Open LWConstants.h and set KEY_ID value using your API key from step 1.
 
-4. That's it. Build, run app and enjoy the local weather. Well, the weather app at least.
+4. Clone [LocalWeatherKit](https://github.com/AnthonyArzola/LocalWeatherKit "LocalWeatherKit on GitHub"). LocalWeather app references LocalWeatherKit CocoaPod, which is local and unpublished pod.
+
+5. That's it. Build, run app and enjoy the local weather. Well, the weather app at least.
 
 ## App Screenshots
 ![Loading](./Screenshots/Loading.png)
 
+
 ![Refresh](./Screenshots/Refresh.png) ![List](./Screenshots/List.png)
+
 
 ![Map](./Screenshots/Map.png) ![City Weather Details](./Screenshots/Details.png)
