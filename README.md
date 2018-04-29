@@ -17,6 +17,16 @@ Sample Objective-C app that displays location based weather. Leverages [LocalWea
 
 5. That's it! Run app and enjoy the local weather. Well, the weather app at least.
 
+## Leverages
+
+* Core Location - CLLocationManager
+* MapKit - MKAnnotation
+* UIKit
+  * Peek and Pop
+   * UIApplicationShortcutItem
+   * UIViewControllerPreviewingDelegate
+   * UIPreviewActionItem
+
 ## App Screenshots
 ![Loading](./Screenshots/Loading.png)
 
