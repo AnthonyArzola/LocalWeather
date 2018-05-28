@@ -22,21 +22,22 @@
 
 @interface LWCityTableViewController ()
 {
-	CLLocationManager *locationManager;
-	CLLocation *currentLocation;
-	CLLocation *lastLocation;
-
-	NSArray *cities;
-
-	MBProgressHUD *hud;
-
-	BOOL isDataLoading;
 }
+
+@property (nonatomic, strong) CLLocationManager *locationManager;
+@property (nonatomic, strong) CLLocation *currentLocation;
+@property (nonatomic, strong) NSMutableArray *cities;
+@property (nonatomic, strong) MBProgressHUD *hud;
+
 @end
 
 @implementation LWCityTableViewController
 
 @synthesize loadMap;
+@synthesize locationManager;
+@synthesize currentLocation;
+@synthesize cities;
+@synthesize hud;
 
 #pragma mark - UIViewController
 
@@ -44,8 +45,8 @@
 {
     if(self = [super initWithCoder:aDecoder])
     {
-        isDataLoading = YES;
 		loadMap = NO;
+        cities = [NSMutableArray new];
     }
     
     return self;
@@ -87,7 +88,6 @@
     [refreshControl addTarget:self action:@selector(refreshData:) forControlEvents:UIControlEventValueChanged];
     
     self.tableView.refreshControl = refreshControl;
-    //[self.tableView addSubview:refreshControl];
     self.tableView.separatorColor = [UIColor clearColor];
     
     // Configure HUD
@@ -130,14 +130,7 @@
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     // Return the number of rows in the section.
-    if(!isDataLoading)
-    {
-        return [cities count];
-    }
-    else
-    {
-        return 0;
-    }
+    return [cities count];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -145,10 +138,7 @@
     if(cities.count == 0)
     {
         UITableViewCell *cell = [[UITableViewCell alloc] init];
-        if(!isDataLoading)
-        {
-            cell.textLabel.text = NSLocalizedString(@"Unable to load local weather!", @"Unable to load local weather.");
-        }
+        cell.textLabel.text = NSLocalizedString(@"Unable to load local weather!", @"Unable to load local weather.");
         
         return cell;
     }
@@ -183,72 +173,20 @@
     
     [locationManager stopUpdatingLocation];
 	currentLocation = newLocation;
-    lastLocation = oldLocation;
     
-    if(isDataLoading)
-    {
-        [[LWKManager sharedInstance] getCurrentWeatherByCoordinatesWithLatitude:newLocation.coordinate.latitude
-                                                                      longitude:newLocation.coordinate.longitude
-                                                              expectedCityCount:15
-                                                                         apiKey:KEY_ID
-                                                                    withSuccess:^(id responseObject)
-        {
-            self.tableView.hidden = NO;
-            
-            LWKCities *result = (LWKCities *)responseObject;
-            cities = result.list;
-            
-            [self.tableView reloadData];
-            self.tableView.separatorColor = [UIColor lightGrayColor];
-            
-        } withFailure:^(NSError *error) {
-            
-            [LWUtils showMessage:NSLocalizedString(@"Unable to load weather data. Please try again.", @"Unable to load weather alert view message.")
-                       withTitle:NSLocalizedString(@"Oops!", @"Unable to load weather attempt-to-be-witty title")
-              fromViewController:self];
-        }];
-        
-        isDataLoading = NO;
-        [hud hideAnimated:YES];
-    }
+    [self refreshData:nil];
 }
 
 - (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status
 {
-    if (status == kCLAuthorizationStatusAuthorizedWhenInUse)
+    if (status == kCLAuthorizationStatusAuthorizedWhenInUse ||
+        status == kCLAuthorizationStatusAuthorizedAlways)
     {
-        [self refreshData:nil];
+        [locationManager startUpdatingLocation];
     }
-    else if (status == kCLAuthorizationStatusDenied)
+    else
     {
-        [hud hideAnimated:YES];
-        
-        UIAlertController *alertController =
-        [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Permission Needed", @"Pemission needed alert view title")
-                                            message:NSLocalizedString(@"Local Weather needs to know your location in order to provide location based weather.", @"Local Weather needs to know your location.")
-                                     preferredStyle:UIAlertControllerStyleAlert];
-        
-        UIAlertAction *defaultAction =
-        [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"Alert view Cancel option")
-                                 style:UIAlertActionStyleDefault
-                               handler:^(UIAlertAction *action) {
-                                   // NOP
-                               }];
-        
-        UIAlertAction *settingsAction =
-        [UIAlertAction actionWithTitle:NSLocalizedString(@"Show Settings", @"Alert view App Settings option")
-                                 style:UIAlertActionStyleDefault
-                               handler:^(UIAlertAction * _Nonnull action) {
-                                   NSURL *url = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
-                                   [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
-                               }];
-        
-        [alertController addAction:defaultAction];
-        [alertController addAction:settingsAction];
-        
-        [self presentViewController:alertController
-                                     animated:YES
-                                   completion:nil];
+        [self requestLocationAccess:status];
     }
 }
 
@@ -299,9 +237,8 @@
     }
     else
     {
-        CLLocationCoordinate2D coordinate;
-        coordinate.latitude = currentLocation.coordinate.latitude;
-        coordinate.longitude = currentLocation.coordinate.longitude;
+        CLLocationCoordinate2D coordinate = CLLocationCoordinate2DMake(currentLocation.coordinate.latitude,
+                                                                       currentLocation.coordinate.longitude);
         
         LWMapViewController *viewController = (LWMapViewController *)segue.destinationViewController;
         viewController.currentLocation = coordinate;
@@ -311,29 +248,83 @@
 
 #pragma mark - Private methods
 
-- (void)refreshData:(UIRefreshControl *)refreshControl
+- (void)requestLocationAccess:(CLAuthorizationStatus)status
 {
-    CLAuthorizationStatus status = [CLLocationManager authorizationStatus];
-    
     if (status == kCLAuthorizationStatusNotDetermined)
     {
-        // Request access
+        // Access has not been determined, explicitly request access
         [locationManager requestWhenInUseAuthorization];
     }
     else if (status == kCLAuthorizationStatusDenied)
     {
-        // User has explicitly denied access to the location services
-        [hud hideAnimated:YES];
+        UIAlertController *alertController =
+        [UIAlertController alertControllerWithTitle:NSLocalizedString(@"Permission Needed", @"Pemission needed alert view title")
+                                            message:NSLocalizedString(@"Local Weather needs to know your location in order to provide location based weather.", @"Local Weather needs to know your location.")
+                                     preferredStyle:UIAlertControllerStyleAlert];
+        
+        UIAlertAction *defaultAction =
+        [UIAlertAction actionWithTitle:NSLocalizedString(@"Cancel", @"Alert view Cancel option")
+                                 style:UIAlertActionStyleDefault
+                               handler:^(UIAlertAction *action) {
+                                   // NOP
+                               }];
+        
+        UIAlertAction *settingsAction =
+        [UIAlertAction actionWithTitle:NSLocalizedString(@"Show Settings", @"Alert view App Settings option")
+                                 style:UIAlertActionStyleDefault
+                               handler:^(UIAlertAction * _Nonnull action) {
+                                   NSURL *url = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
+                                   [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
+                               }];
+        
+        [alertController addAction:defaultAction];
+        [alertController addAction:settingsAction];
+        
+        [self presentViewController:alertController
+                           animated:YES
+                         completion:nil];
     }
-    else if (status == kCLAuthorizationStatusAuthorizedWhenInUse || status == kCLAuthorizationStatusAuthorizedAlways)
-    {
-        [hud showAnimated:YES];
-        isDataLoading = YES;
-        [locationManager startUpdatingLocation];
-    }
-    
+}
+
+- (void)refreshData:(UIRefreshControl *)refreshControl
+{
     if(refreshControl != nil)
         [refreshControl endRefreshing];
+    
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
+        
+        __weak LWCityTableViewController *weakSelf = self;
+        
+        [[LWKManager sharedInstance] getCurrentWeatherByCoordinatesWithLatitude:currentLocation.coordinate.latitude
+                                                                      longitude:currentLocation.coordinate.longitude
+                                                              expectedCityCount:15
+                                                                         apiKey:KEY_ID
+                                                                    withSuccess:^(id responseObject) {
+                                                                        
+                                                                        // Perform UI updates on the main thread
+                                                                        dispatch_async(dispatch_get_main_queue(), ^{
+                                                                            
+                                                                            LWKCities *result = (LWKCities *)responseObject;
+                                                                            [weakSelf.cities removeAllObjects];
+                                                                            [weakSelf.cities addObjectsFromArray:result.list];
+                                                                            
+                                                                            weakSelf.tableView.hidden = NO;
+                                                                            [weakSelf.tableView reloadData];
+                                                                            weakSelf.tableView.separatorColor = [UIColor lightGrayColor];
+                                                                            
+                                                                            [weakSelf.hud hideAnimated:YES];
+                                                                        });
+             
+                                                                    } withFailure:^(NSError *error) {
+                                                                        
+                                                                        [weakSelf.hud hideAnimated:YES];
+             
+                                                                        [LWUtils showMessage:NSLocalizedString(@"Unable to load weather data. Please try again.", @"Unable to load weather alert view message.")
+                                                                                   withTitle:NSLocalizedString(@"Oops!", @"Unable to load weather attempt-to-be-witty title")
+                                                                          fromViewController:self];
+                                                                    }];
+    });
+    
 }
 
 @end
