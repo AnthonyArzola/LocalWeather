@@ -200,7 +200,7 @@
 				3E42CE831E1B20BB00B275F3 /* Views */,
 				3E42CE841E1B20C400B275F3 /* ViewControllers */,
 			);
-			path = LocalWeather;
+			name = LocalWeather;
 			sourceTree = "<group>";
 		};
 		3E42CE561E1B1B5600B275F3 /* Supporting Files */ = {
