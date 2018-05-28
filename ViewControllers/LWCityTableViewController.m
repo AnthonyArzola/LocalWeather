@@ -208,7 +208,9 @@
 			previewingContext.sourceRect = cell.frame;
 			
 			LWCityDetailsViewController *viewController = (LWCityDetailsViewController *)[self.storyboard instantiateViewControllerWithIdentifier:@"cityDetailsViewController"];
+            viewController.currentLocation = CLLocationCoordinate2DMake(currentLocation.coordinate.latitude, currentLocation.coordinate.longitude);;
 			viewController.city = city;
+            
 			return viewController;
 		}
 	}
@@ -233,6 +235,7 @@
         LWKCity *city = [cities objectAtIndex:indexPath.row];
         
         LWCityDetailsViewController *viewController = (LWCityDetailsViewController *)segue.destinationViewController;
+        viewController.currentLocation = CLLocationCoordinate2DMake(currentLocation.coordinate.latitude, currentLocation.coordinate.longitude);
         viewController.city = city;
     }
     else

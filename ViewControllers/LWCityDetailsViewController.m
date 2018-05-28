@@ -9,22 +9,19 @@
 #import "LWCityDetailsViewController.h"
 #import "LWMapViewAnnotation.h"
 #import "LWKCity.h"
+
 #import "LWDateTimeUtils.h"
+#import "LWUtils.h"
 
 @interface LWCityDetailsViewController ()
 @end
 
 @implementation LWCityDetailsViewController
 
+@synthesize currentLocation;
 @synthesize city;
 
 #pragma mark - UIViewController
-
-- (void)viewDidLoad
-{
-    [super viewDidLoad];
-    // Do any additional setup after loading the view.
-}
 
 - (void)viewWillAppear:(BOOL)animated
 {
@@ -54,8 +51,25 @@
     self.mapView.showsUserLocation = YES;
     
     // Zoom mapView
-    CLLocationCoordinate2D coordinate = CLLocationCoordinate2DMake(city.coordinate.latitude, city.coordinate.longitude);
-    MKCoordinateRegion adjustedRegion = [self.mapView regionThatFits:MKCoordinateRegionMakeWithDistance(coordinate, 7500, 7500)];
+    CLLocation *clCurrent = [[CLLocation alloc] initWithLatitude:currentLocation.latitude longitude:currentLocation.longitude];
+    CLLocation *clCity = [[CLLocation alloc] initWithLatitude:city.coordinate.latitude longitude:city.coordinate.longitude];
+    
+    double latMeters = 7000.0;
+    double longMeters = 7000.0;
+    
+    CLLocationDistance distance = [LWUtils distanceBetweenLocation:clCurrent secondLocation:clCity];
+    if (distance > 1.0 && distance < 4.0)
+    {
+        latMeters = latMeters + (distance * 2000.0);
+        longMeters = longMeters + (distance * 2000.0);
+    }
+    else if (distance >= 4.0)
+    {
+        latMeters = latMeters + (distance * 3000.0);
+        longMeters = longMeters + (distance * 3000.0);
+    }
+    
+    MKCoordinateRegion adjustedRegion = [self.mapView regionThatFits:MKCoordinateRegionMakeWithDistance(currentLocation, latMeters, longMeters)];
     [self.mapView setRegion:adjustedRegion animated:YES];
     
     // Animate map

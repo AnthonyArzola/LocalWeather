@@ -8,12 +8,14 @@
 
 #import <UIKit/UIKit.h>
 #import <MapKit/MapKit.h>
+#import <CoreLocation/CoreLocation.h>
 
 @class LWMapViewAnnotation;
 @class LWKCity;
 
 @interface LWCityDetailsViewController : UIViewController
 
+@property (nonatomic, assign) CLLocationCoordinate2D currentLocation;
 @property (nonatomic, weak) LWKCity *city;
 
 @property (weak, nonatomic) IBOutlet UILabel *labelTemperature;
