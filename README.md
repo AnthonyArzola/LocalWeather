@@ -11,24 +11,25 @@ Sample Objective-C app that displays location based weather. Leverages [LocalWea
 
 2. Clone this repo
 
-3. Open workspace, replace `KEY_ID` constant value in LWConstants.h with your API key
+3. Open workspace, replace `KEY_ID` constant value in `LWConstants.h` with your API key from Step 1
 
-4. Clone [LocalWeatherKit](https://github.com/AnthonyArzola/LocalWeatherKit "LocalWeatherKit on GitHub"). LocalWeather app references LocalWeatherKit CocoaPod, which is local and unpublished pod.
+4. Clone [LocalWeatherKit](https://github.com/AnthonyArzola/LocalWeatherKit "LocalWeatherKit on GitHub"). LocalWeather app references LocalWeatherKit CocoaPod, a local and unpublished pod
 
-5. That's it! Run app and enjoy the local weather. Well, the weather app at least.
+5. That's it! Run app and enjoy the local weather. Well, the weather app at least :-)
 
 ## Leverages
 
-* Core Location - CLLocationManager
-* MapKit - MKAnnotation
+* Core Location - `CLLocationManager`
+* MapKit - `MKAnnotation`
 * UIKit
+  * 3D Touch
+    * `UIApplicationShortcutItem`
   * Peek and Pop
-   * UIApplicationShortcutItem
-   * UIViewControllerPreviewingDelegate
-   * UIPreviewActionItem
+    * `UIViewControllerPreviewingDelegate`
+    * `UIPreviewActionItem`
 
 ## App Screenshots
-![Loading](./Screenshots/Loading.png)
+![3D Touch](./Screenshots/3D-Touch.png) ![Loading](./Screenshots/Loading.png)
 
 
 ![Refresh](./Screenshots/Refresh.png) ![List](./Screenshots/List.png)
